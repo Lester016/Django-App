@@ -1,7 +1,7 @@
 # Django-App
 
 ## Steps on setting a django app.
-1.) `mkdir django-app1`.
+1.) `mkdir django-app`.
 
 ~ go to project directory.
 
