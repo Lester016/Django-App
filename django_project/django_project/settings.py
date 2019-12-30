@@ -122,7 +122,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# Specify what version you used for crispy package you install.
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
+# Redirect to blog-home url for django auth login.
 LOGIN_REDIRECT_URL = 'blog-home'
+
+# Where the user will redirect if they try to access a views that requires a user login.
 LOGIN_URL = 'login'
