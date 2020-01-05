@@ -1,16 +1,35 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.contrib.auth.models import User
 from blog.models import Post
 
-
+# Home Page.
 class PostListView(ListView):
     model = Post
     template_name = 'blog/home.html'  # <app>/<model>_<viewtype>.html
     # or use object_list in the template if you don't set up a context name.
     context_object_name = 'posts'
     ordering = ['-date_posted']  # `-` indicates newest to oldest.
+    paginate_by = 5
 
+
+class UserPostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'  # <app>/<model>_<viewtype>.html
+    # or use object_list in the template if you don't set up a context name.
+    context_object_name = 'posts'
+    paginate_by = 5
+
+    # Override the method of the list view to modify the url query.
+    def get_queryset(self):
+        user = get_object_or_404(User, username=self.kwargs.get('username'))
+        return Post.objects.filter(author=user).order_by('-date_posted')
+
+    def get_context_data(self, **kwargs):
+        context = super(UserPostListView, self).get_context_data(**kwargs)
+        context['visited_user'] = User.objects.filter(username=self.kwargs.get('username')).first()
+        return context
 
 class PostDetailView(DetailView):
     model = Post
@@ -41,7 +60,7 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         post = self.get_object()
         if self.request.user == post.author:
             return True
-        return False # if False the response would be 403.
+        return False  # if False the response would be 403.
 
 
 class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -55,6 +74,7 @@ class PostDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         if self.request.user == post.author:
             return True
         return False
+
 
 def about(request):
     context = {
